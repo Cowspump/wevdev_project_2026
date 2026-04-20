@@ -5,7 +5,6 @@ from . import views
 router = DefaultRouter()
 router.register('', views.TaskViewSet, basename='task')
 
-# schedule router
 schedule_router = DefaultRouter()
 schedule_router.register('', views.ScheduleViewSet, basename='schedule')
 

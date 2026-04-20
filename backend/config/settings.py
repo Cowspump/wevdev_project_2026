@@ -16,10 +16,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # third party
     'rest_framework',
     'corsheaders',
-    # our apps
     'users',
     'tasks',
     'notifications',
@@ -56,7 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# sqlite for now
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -66,20 +63,17 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'users.User'
 
-# drf settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 
-# jwt settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-# cors - allow angular dev server
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',
 ]

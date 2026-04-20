@@ -38,7 +38,7 @@ class ScheduleEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='schedule')
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=200)
-    day_of_week = models.IntegerField()  # 0 = monday, 6 = sunday
+    day_of_week = models.IntegerField()
     start_hour = models.IntegerField()
     end_hour = models.IntegerField()
     color = models.CharField(max_length=7, default='#4CAF50')
