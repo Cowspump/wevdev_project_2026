@@ -71,6 +71,7 @@ export class LandingPage {
       iconBg: '#fceae7',
       title: 'Proactive Notifications',
       desc: 'Stay one step ahead of every deadline and exam. Our system keeps critical events on your radar well in advance.',
+      route: '/notifications',
     },
     {
       icon: '🧘',

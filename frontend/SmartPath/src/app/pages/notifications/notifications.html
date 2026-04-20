@@ -1,0 +1,145 @@
+<!-- TOPBAR -->
+<div class="topbar">
+  <a routerLink="/" class="back-link">← Back to Home</a>
+  <div class="topbar-center">
+    <span class="topbar-icon">🔔</span>
+    <span class="topbar-title">Proactive Notifications</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-mark-all" (click)="markAllRead()" [disabled]="unreadCount() === 0">
+      Mark all read
+    </button>
+    <button class="btn-add" (click)="showAddForm.set(!showAddForm())">
+      {{ showAddForm() ? '✕ Cancel' : '+ Add notification' }}
+    </button>
+  </div>
+</div>
+
+<!-- ADD FORM -->
+<div class="add-form-wrap" *ngIf="showAddForm()">
+  <div class="add-form">
+    <div class="add-form-title">New notification</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" [value]="newTitle()" (input)="newTitle.set($any($event.target).value)" placeholder="e.g. Physics Exam" />
+      </div>
+      <div class="form-group">
+        <label>Course (optional)</label>
+        <input type="text" [value]="newCourse()" (input)="newCourse.set($any($event.target).value)" placeholder="e.g. PHY 101" />
+      </div>
+      <div class="form-group form-full">
+        <label>Message</label>
+        <input type="text" [value]="newMessage()" (input)="newMessage.set($any($event.target).value)" placeholder="Describe the notification..." />
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select [value]="newCategory()" (change)="newCategory.set($any($event.target).value)">
+          <option value="exam">Exam</option>
+          <option value="deadline">Deadline</option>
+          <option value="reminder">Reminder</option>
+          <option value="tip">Tip</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select [value]="newPriority()" (change)="newPriority.set($any($event.target).value)">
+          <option value="critical">Critical</option>
+          <option value="warning">Warning</option>
+          <option value="info">Info</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Due in</label>
+        <input type="text" [value]="newDueIn()" (input)="newDueIn.set($any($event.target).value)" placeholder="e.g. 2 days" />
+      </div>
+    </div>
+    <button class="btn-submit" (click)="submitNew()" [disabled]="!newTitle() || !newMessage()">
+      Add notification
+    </button>
+  </div>
+</div>
+
+<!-- STATS ROW -->
+<div class="stats-row">
+  <div class="stat-card stat-critical">
+    <div class="stat-icon">🚨</div>
+    <div class="stat-body">
+      <div class="stat-val">{{ criticalCount() }}</div>
+      <div class="stat-label">Critical alerts</div>
+    </div>
+  </div>
+  <div class="stat-card stat-unread">
+    <div class="stat-icon">🔔</div>
+    <div class="stat-body">
+      <div class="stat-val">{{ unreadCount() }}</div>
+      <div class="stat-label">Unread</div>
+    </div>
+  </div>
+  <div class="stat-card stat-total">
+    <div class="stat-icon">📋</div>
+    <div class="stat-body">
+      <div class="stat-val">{{ allNotifications().length }}</div>
+      <div class="stat-label">Total active</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-tabs">
+  <button
+    *ngFor="let tab of [
+      {key: 'all',      label: 'All'},
+      {key: 'unread',   label: 'Unread'},
+      {key: 'critical', label: '🚨 Critical'},
+      {key: 'exam',     label: '📝 Exams'},
+      {key: 'deadline', label: '⏰ Deadlines'},
+      {key: 'tip',      label: '💡 Tips'}
+    ]"
+    class="tab-btn"
+    [class.active]="activeFilter() === tab.key"
+    (click)="setFilter($any(tab.key))"
+  >{{ tab.label }}</button>
+</div>
+
+<!-- NOTIFICATION LIST -->
+<div class="notif-list">
+  <div
+    *ngFor="let n of filtered()"
+    class="notif-card"
+    [class.unread]="!n.read"
+    [class.priority-critical]="n.priority === 'critical'"
+    [class.priority-warning]="n.priority === 'warning'"
+    [class.priority-info]="n.priority === 'info'"
+    (click)="markRead(n.id)"
+  >
+    <!-- Left accent bar is via CSS border-left on priority classes -->
+    <div class="notif-icon">{{ n.icon }}</div>
+
+    <div class="notif-body">
+      <div class="notif-header">
+        <div class="notif-title">
+          <span class="unread-dot" *ngIf="!n.read"></span>
+          {{ n.title }}
+        </div>
+        <div class="notif-meta">
+          <span class="due-badge" [class]="'due-' + n.priority">{{ n.dueIn }}</span>
+          <span class="course-tag" *ngIf="n.course">{{ n.course }}</span>
+        </div>
+      </div>
+      <p class="notif-message">{{ n.message }}</p>
+      <div class="notif-footer">
+        <span class="priority-chip" [class]="'chip-' + n.priority">{{ priorityLabel(n.priority) }}</span>
+        <span class="notif-time">{{ n.time }}</span>
+        <button class="btn-dismiss" (click)="dismiss(n.id, $event)">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="filtered().length === 0">
+    <div class="empty-icon">🎉</div>
+    <div class="empty-title">All clear!</div>
+    <p class="empty-sub">No notifications in this category.</p>
+  </div>
+</div>
