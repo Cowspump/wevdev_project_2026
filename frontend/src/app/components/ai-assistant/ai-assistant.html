@@ -1,0 +1,30 @@
+<div class="ai-wrap">
+  <button class="ai-btn" (click)="toggle()" [class.active]="open">
+    <span class="ai-icon">&#9733;</span>
+    AI
+  </button>
+
+  @if (open) {
+    <div class="ai-popup">
+      <div class="popup-header">
+        <span class="popup-title">AI Assistant</span>
+      </div>
+
+      <ul class="tips-list">
+        @for (tip of tips; track tip) {
+          <li class="tip-item">{{ tip }}</li>
+        }
+      </ul>
+
+      <div class="popup-action">
+        <button class="advice-btn" (click)="askAdvice()">What should I do first?</button>
+      </div>
+
+      @if (priorityAdvice) {
+        <div class="priority-box">
+          {{ priorityAdvice }}
+        </div>
+      }
+    </div>
+  }
+</div>

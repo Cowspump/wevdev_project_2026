@@ -1,6 +1,6 @@
 <section class="week-page">
   <div class="week-grid">
-    @for (day of days; track day.name; let i = $index) {
+    @for (day of ts.days; track day.name; let i = $index) {
       <div class="day-column" [class.today]="isToday(i)">
         <div class="day-header">
           <span class="day-name">{{ day.shortName }}</span>
@@ -9,13 +9,16 @@
 
         <div class="day-body">
           @for (task of day.tasks; track task.title; let j = $index) {
-            <div class="task-card">
+            <div class="task-card" [attr.data-deadline]="ts.deadlineColor(task)">
               <div class="task-card-header">
                 <span class="task-title">{{ task.title }}</span>
                 <button class="task-remove" (click)="removeTask(i, j)">&times;</button>
               </div>
               @if (task.time) {
                 <span class="task-time">{{ task.time }}</span>
+              }
+              @if (ts.deadlineLabel(task)) {
+                <span class="task-deadline" [attr.data-deadline]="ts.deadlineColor(task)">{{ ts.deadlineLabel(task) }}</span>
               }
               @if (task.description) {
                 <p class="task-desc">{{ task.description }}</p>
@@ -47,6 +50,11 @@
         <label class="field">
           <span class="field-label">Time</span>
           <input type="time" [(ngModel)]="newTask.time" class="field-input" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Deadline</span>
+          <input type="date" [(ngModel)]="newTask.deadline" class="field-input" />
         </label>
 
         <label class="field">
