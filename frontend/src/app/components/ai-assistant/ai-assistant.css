@@ -9,22 +9,18 @@
   padding: 0.4rem 0.85rem;
   border: 1px solid #c7d2fe;
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-  color: #4338ca;
+  background: #ffffff;
+  color: #111827;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .ai-btn:hover,
 .ai-btn.active {
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  background: #ffffff;
   border-color: #818cf8;
-}
-
-.ai-icon {
-  font-size: 0.9rem;
 }
 
 /* Popup */

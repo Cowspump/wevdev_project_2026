@@ -6,6 +6,30 @@
   padding: 0.5rem 0;
 }
 
+.pomodoro {
+  margin-top: 1rem;
+  padding: 0.75rem 0;
+}
+
+.pomodoro h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.pomodoro p {
+  margin: 0 0 0.5rem;
+}
+
+.pomodoro-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pomodoro-actions button {
+  padding: 0.4rem 0.75rem;
+}
+
 /* ── Week Grid ── */
 .week-grid {
   display: grid;
@@ -25,11 +49,6 @@
   overflow: hidden;
 }
 
-.day-column.today {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px #2563eb;
-}
-
 /* ── Day Header ── */
 .day-header {
   display: flex;
@@ -41,29 +60,17 @@
   border-bottom: 1px solid #dbeafe;
 }
 
-.today .day-header {
-  background: #2563eb;
-}
-
 .day-name {
   font-weight: 700;
   font-size: 0.85rem;
-  color: #1d4ed8;
+  color: #111827;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-}
-
-.today .day-name {
-  color: #fff;
 }
 
 .day-date {
   font-size: 0.75rem;
   color: #64748b;
-}
-
-.today .day-date {
-  color: rgba(255, 255, 255, 0.8);
 }
 
 /* ── Day Body ── */
@@ -88,11 +95,6 @@
 .task-card[data-deadline="green"] { border-left-color: #22c55e; }
 .task-card[data-deadline="yellow"] { border-left-color: #eab308; }
 .task-card[data-deadline="red"] { border-left-color: #ef4444; background: #fef2f2; }
-
-.task-card:hover {
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
-  transform: translateY(-1px);
-}
 
 .task-card-header {
   display: flex;
@@ -164,12 +166,6 @@
   font-size: 0.75rem;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.add-task-btn:hover {
-  background: #eff6ff;
-  color: #2563eb;
-  border-color: #2563eb;
 }
 
 /* ── Modal Overlay ── */

@@ -80,20 +80,10 @@
   color: #374151;
 }
 
-.ghost-button:hover {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-}
-
 .primary-button {
   background: #2563eb;
   color: #ffffff;
   border-color: #2563eb;
-}
-
-.primary-button:hover {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
 }
 
 @media (max-width: 640px) {

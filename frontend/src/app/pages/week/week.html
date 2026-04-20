@@ -9,11 +9,7 @@
 
         <div class="day-body">
           @for (task of day.tasks; track task.title; let j = $index) {
-<<<<<<< HEAD
             <div class="task-card" [attr.data-deadline]="ts.deadlineColor(task)">
-=======
-            <div class="task-card" [attr.data-deadline]="deadlineColor(task)">
->>>>>>> 4584a84 (might have conflict)
               <div class="task-card-header">
                 <span class="task-title">{{ task.title }}</span>
                 <button class="task-remove" (click)="removeTask(i, j)">&times;</button>
@@ -21,13 +17,8 @@
               @if (task.time) {
                 <span class="task-time">{{ task.time }}</span>
               }
-<<<<<<< HEAD
               @if (ts.deadlineLabel(task)) {
                 <span class="task-deadline" [attr.data-deadline]="ts.deadlineColor(task)">{{ ts.deadlineLabel(task) }}</span>
-=======
-              @if (deadlineLabel(task)) {
-                <span class="task-deadline" [attr.data-deadline]="deadlineColor(task)">{{ deadlineLabel(task) }}</span>
->>>>>>> 4584a84 (might have conflict)
               }
               @if (task.description) {
                 <p class="task-desc">{{ task.description }}</p>
@@ -39,6 +30,15 @@
         </div>
       </div>
     }
+  </div>
+
+  <div class="pomodoro">
+    <h2>Pomodoro 50:10</h2>
+    <p>{{ getTimerTitle() }}: {{ getTimerLabel() }}</p>
+    <div class="pomodoro-actions">
+      <button type="button" (click)="startTimer()">Start</button>
+      <button type="button" (click)="resetTimer()">Reset</button>
+    </div>
   </div>
 </section>
 
