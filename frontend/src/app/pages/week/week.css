@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+.week-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.week-header {
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #2563eb;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.week-header h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1.15;
+}
+
+.lead {
+  margin: 0.5rem 0 0;
+  color: #4b5563;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #cfe3ff;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.calendar-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.calendar-table th,
+.calendar-table td {
+  border-bottom: 1px solid #dbeafe;
+  border-right: 1px solid #dbeafe;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.calendar-table thead th {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.time-head,
+.time-cell {
+  width: 88px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calendar-table td {
+  height: 38px;
+  background: #ffffff;
+}
+
+.calendar-table tr:last-child th,
+.calendar-table tr:last-child td {
+  border-bottom: none;
+}
+
+.calendar-table th:last-child,
+.calendar-table td:last-child {
+  border-right: none;
+}

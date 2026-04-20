@@ -1,0 +1,24 @@
+<section class="week-page">
+  <div class="table-wrap">
+    <table class="calendar-table">
+      <thead>
+        <tr>
+          <th class="time-head">Time</th>
+          @for (day of days; track day) {
+            <th>{{ day }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (hour of hours; track hour) {
+          <tr>
+            <th class="time-cell">{{ hour }}:00</th>
+            @for (day of days; track day) {
+              <td></td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
