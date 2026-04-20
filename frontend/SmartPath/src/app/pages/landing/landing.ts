@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { NotificationsService } from '../../services/notifications.service';
+import { AuthService } from '../../services/auth.service';
 
 export interface Feature {
   icon: string;
@@ -40,6 +42,20 @@ export interface TimeBar {
   styleUrl: './landing.css',
 })
 export class LandingPage {
+  private notifSvc = inject(NotificationsService);
+  private authSvc = inject(AuthService);
+  private router = inject(Router);
+
+  readonly unreadCount = this.notifSvc.unreadCount;
+  readonly user = this.authSvc.user;
+  readonly isLoggedIn = this.authSvc.isLoggedIn;
+
+  showUserMenu = signal(false);
+
+  logout(): void {
+    this.authSvc.logout();
+  }
+
   features: Feature[] = [
     {
       icon: '📅',
@@ -70,8 +86,8 @@ export class LandingPage {
       icon: '🔔',
       iconBg: '#fceae7',
       title: 'Proactive Notifications',
-      desc: 'Stay one step ahead of every deadline and exam. Our system keeps critical events on your radar well in advance.',
       route: '/notifications',
+      desc: 'Stay one step ahead of every deadline and exam. Our system keeps critical events on your radar well in advance.',
     },
     {
       icon: '🧘',
@@ -83,16 +99,51 @@ export class LandingPage {
 
   tasks: Task[] = [
     { name: 'Morning review', done: true, tag: 'Done', tagClass: 'tag-rest', time: '08:00' },
-    { name: 'Linear Algebra problem set', done: true, tag: 'Deep focus', tagClass: 'tag-focus', time: '09:30' },
-    { name: 'Research paper draft — section 2', done: false, tag: 'Urgent', tagClass: 'tag-urgent', time: 'Now', active: true },
-    { name: 'Physics lab report', done: false, tag: 'Important', tagClass: 'tag-focus', time: '15:00' },
+    {
+      name: 'Linear Algebra problem set',
+      done: true,
+      tag: 'Deep focus',
+      tagClass: 'tag-focus',
+      time: '09:30',
+    },
+    {
+      name: 'Research paper draft — section 2',
+      done: false,
+      tag: 'Urgent',
+      tagClass: 'tag-urgent',
+      time: 'Now',
+      active: true,
+    },
+    {
+      name: 'Physics lab report',
+      done: false,
+      tag: 'Important',
+      tagClass: 'tag-focus',
+      time: '15:00',
+    },
   ];
 
   steps: Step[] = [
-    { num: 1, title: 'Set your profile', desc: 'Add your courses, goals, and the things that matter to you personally.' },
-    { num: 2, title: 'Import your timetable', desc: 'SmartPath reads your academic schedule and locks in non-negotiable blocks.' },
-    { num: 3, title: 'Get your plan', desc: 'AI generates a balanced daily rhythm — work, focus, and rest in harmony.' },
-    { num: 4, title: 'Track & improve', desc: 'Weekly insights sharpen your workflow and reveal where time goes.' },
+    {
+      num: 1,
+      title: 'Set your profile',
+      desc: 'Add your courses, goals, and the things that matter to you personally.',
+    },
+    {
+      num: 2,
+      title: 'Import your timetable',
+      desc: 'SmartPath reads your academic schedule and locks in non-negotiable blocks.',
+    },
+    {
+      num: 3,
+      title: 'Get your plan',
+      desc: 'AI generates a balanced daily rhythm — work, focus, and rest in harmony.',
+    },
+    {
+      num: 4,
+      title: 'Track & improve',
+      desc: 'Weekly insights sharpen your workflow and reveal where time goes.',
+    },
   ];
 
   timeBars: TimeBar[] = [
@@ -103,3 +154,4 @@ export class LandingPage {
     { label: 'Admin & planning', hours: '2.5h', widthPct: 10, color: '#b4b2a9' },
   ];
 }
+

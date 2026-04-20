@@ -7,7 +7,36 @@
     <li><a href="#features">Features</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#insights">Insights</a></li>
-    <li><a href="#" class="nav-cta">Get started</a></li>
+    <li>
+      <a routerLink="/notifications" class="nav-notif-btn" title="Notifications">
+        🔔 <span class="nav-notif-badge">{{ unreadCount() }}</span>
+      </a>
+    </li>
+    <!-- If logged in: user menu. Otherwise: login / get started -->
+    <li *ngIf="isLoggedIn(); else guestNav">
+      <div class="nav-user-wrap">
+        <button class="nav-user-btn" (click)="showUserMenu.set(!showUserMenu())">
+          <span class="nav-avatar">{{ user()?.name?.charAt(0) ?? 'U' }}</span>
+          <span class="nav-user-name">{{ user()?.name }}</span>
+          <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-dropdown" *ngIf="showUserMenu()">
+          <div class="dropdown-info">
+            <div class="dropdown-name">{{ user()?.name }}</div>
+            <div class="dropdown-email">{{ user()?.email }}</div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" routerLink="/schedule">📅 Schedule</button>
+          <button class="dropdown-item" routerLink="/notifications">🔔 Notifications</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout-item" (click)="logout()">🚪 Sign out</button>
+        </div>
+      </div>
+    </li>
+    <ng-template #guestNav>
+      <li><a routerLink="/login" class="nav-login-link">Sign in</a></li>
+      <li><a href="#" class="nav-cta">Get started</a></li>
+    </ng-template>
   </ul>
 </nav>
 
