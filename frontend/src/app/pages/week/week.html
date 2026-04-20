@@ -1,24 +1,64 @@
 <section class="week-page">
-  <div class="table-wrap">
-    <table class="calendar-table">
-      <thead>
-        <tr>
-          <th class="time-head">Time</th>
-          @for (day of days; track day) {
-            <th>{{ day }}</th>
+  <div class="week-grid">
+    @for (day of days; track day.name; let i = $index) {
+      <div class="day-column" [class.today]="isToday(i)">
+        <div class="day-header">
+          <span class="day-name">{{ day.shortName }}</span>
+          <span class="day-date">{{ day.date }}</span>
+        </div>
+
+        <div class="day-body">
+          @for (task of day.tasks; track task.title; let j = $index) {
+            <div class="task-card">
+              <div class="task-card-header">
+                <span class="task-title">{{ task.title }}</span>
+                <button class="task-remove" (click)="removeTask(i, j)">&times;</button>
+              </div>
+              @if (task.time) {
+                <span class="task-time">{{ task.time }}</span>
+              }
+              @if (task.description) {
+                <p class="task-desc">{{ task.description }}</p>
+              }
+            </div>
           }
-        </tr>
-      </thead>
-      <tbody>
-        @for (hour of hours; track hour) {
-          <tr>
-            <th class="time-cell">{{ hour }}:00</th>
-            @for (day of days; track day) {
-              <td></td>
-            }
-          </tr>
-        }
-      </tbody>
-    </table>
+
+          <button class="add-task-btn" (click)="openModal(i)">+ Add task</button>
+        </div>
+      </div>
+    }
   </div>
 </section>
+
+@if (showModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>New Task</h2>
+        <button class="modal-close" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">Title</span>
+          <input type="text" [(ngModel)]="newTask.title" placeholder="Task name" class="field-input" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Time</span>
+          <input type="time" [(ngModel)]="newTask.time" class="field-input" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Description</span>
+          <textarea [(ngModel)]="newTask.description" placeholder="Optional description..." class="field-textarea" rows="3"></textarea>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button class="btn-add" (click)="addTask()" [disabled]="!newTask.title.trim()">Add Task</button>
+      </div>
+    </div>
+  </div>
+}
