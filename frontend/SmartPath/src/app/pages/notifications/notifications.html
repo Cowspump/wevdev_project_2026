@@ -49,10 +49,7 @@
           <option value="info">Info</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Due in</label>
-        <input type="text" [value]="newDueIn()" (input)="newDueIn.set($any($event.target).value)" placeholder="e.g. 2 days" />
-      </div>
+      <!-- due in removed -->
     </div>
     <button class="btn-submit" (click)="submitNew()" [disabled]="!newTitle() || !newMessage()">
       Add notification
@@ -114,7 +111,7 @@
     (click)="markRead(n.id)"
   >
     <!-- Left accent bar is via CSS border-left on priority classes -->
-    <div class="notif-icon">{{ n.icon }}</div>
+    <div class="notif-icon">{{ categoryIcon(n.category) }}</div>
 
     <div class="notif-body">
       <div class="notif-header">
@@ -123,14 +120,13 @@
           {{ n.title }}
         </div>
         <div class="notif-meta">
-          <span class="due-badge" [class]="'due-' + n.priority">{{ n.dueIn }}</span>
           <span class="course-tag" *ngIf="n.course">{{ n.course }}</span>
         </div>
       </div>
       <p class="notif-message">{{ n.message }}</p>
       <div class="notif-footer">
         <span class="priority-chip" [class]="'chip-' + n.priority">{{ priorityLabel(n.priority) }}</span>
-        <span class="notif-time">{{ n.time }}</span>
+        <span class="notif-time">{{ n.created_at | date:'short' }}</span>
         <button class="btn-dismiss" (click)="dismiss(n.id, $event)">Dismiss</button>
       </div>
     </div>

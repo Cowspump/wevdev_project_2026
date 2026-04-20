@@ -33,7 +33,7 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-
+.claude/
 
 # ==========================================
 # Angular (Frontend)

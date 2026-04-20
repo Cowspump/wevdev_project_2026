@@ -1,0 +1,212 @@
+.pomodoro-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.task-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.task-select label {
+  font-size: 14px;
+  color: #555;
+}
+
+.task-select select {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.selected-task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 24px;
+}
+
+.selected-task-info strong {
+  font-size: 15px;
+}
+
+.task-meta {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Timer circle */
+.timer-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.timer-circle {
+  position: relative;
+  width: 220px;
+  height: 220px;
+}
+
+.timer-circle svg {
+  width: 100%;
+  height: 100%;
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-display {
+  font-size: 42px;
+  font-weight: 700;
+  color: #222;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-label {
+  font-size: 14px;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.btn-start {
+  padding: 10px 32px;
+  background: #5b3cf5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-start:hover {
+  background: #4a2ed4;
+}
+
+.btn-pause {
+  padding: 10px 32px;
+  background: #e65100;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-reset {
+  padding: 10px 24px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Stats */
+.stats {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #5b3cf5;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Settings */
+.settings {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: left;
+}
+
+.settings h3 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.settings-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.setting {
+  flex: 1;
+}
+
+.setting label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.setting input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.btn-apply {
+  padding: 6px 16px;
+  background: #5b3cf5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  height: 34px;
+}

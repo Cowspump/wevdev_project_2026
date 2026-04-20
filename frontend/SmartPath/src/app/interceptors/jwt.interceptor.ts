@@ -53,8 +53,8 @@ function handle401(
     return auth.refreshToken().pipe(
       switchMap(res => {
         isRefreshing = false;
-        refreshDone$.next(res.token);
-        return next(addToken(req, res.token));
+        refreshDone$.next(res.access);
+        return next(addToken(req, res.access));
       }),
       catchError(err => {
         isRefreshing = false;

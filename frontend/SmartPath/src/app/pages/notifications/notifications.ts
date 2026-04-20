@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NotificationsService, AppNotification, NotificationPriority, NotificationCategory } from '../../services/notifications.service';
@@ -12,7 +12,7 @@ type FilterTab = 'all' | 'unread' | 'critical' | 'exam' | 'deadline' | 'tip';
   templateUrl: './notifications.html',
   styleUrl: './notifications.css',
 })
-export class NotificationsPage {
+export class NotificationsPage implements OnInit {
   private svc = inject(NotificationsService);
 
   activeFilter = signal<FilterTab>('all');
@@ -24,11 +24,14 @@ export class NotificationsPage {
   newCategory = signal<NotificationCategory>('reminder');
   newPriority = signal<NotificationPriority>('info');
   newCourse = signal('');
-  newDueIn = signal('');
 
   readonly allNotifications = this.svc.notifications;
   readonly unreadCount = this.svc.unreadCount;
   readonly criticalCount = this.svc.criticalCount;
+
+  ngOnInit() {
+    this.svc.loadNotifications();
+  }
 
   readonly filtered = computed(() => {
     const f = this.activeFilter();
@@ -47,7 +50,7 @@ export class NotificationsPage {
     this.activeFilter.set(f);
   }
 
-  markRead(id: string): void {
+  markRead(id: number): void {
     this.svc.markRead(id);
   }
 
@@ -55,7 +58,7 @@ export class NotificationsPage {
     this.svc.markAllRead();
   }
 
-  dismiss(id: string, event: Event): void {
+  dismiss(id: number, event: Event): void {
     event.stopPropagation();
     this.svc.dismiss(id);
   }
@@ -75,15 +78,11 @@ export class NotificationsPage {
       message: this.newMessage(),
       priority: this.newPriority(),
       category: this.newCategory(),
-      time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-      dueIn: this.newDueIn() || 'TBD',
-      icon: this.categoryIcon(this.newCategory()),
-      course: this.newCourse() || undefined,
+      course: this.newCourse() || '',
     });
     this.newTitle.set('');
     this.newMessage.set('');
     this.newCourse.set('');
-    this.newDueIn.set('');
     this.showAddForm.set(false);
   }
 }

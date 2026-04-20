@@ -1,165 +1,71 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 export type NotificationPriority = 'critical' | 'warning' | 'info';
 export type NotificationCategory = 'exam' | 'deadline' | 'reminder' | 'tip';
 
 export interface AppNotification {
-  id: string;
+  id: number;
   title: string;
   message: string;
   priority: NotificationPriority;
   category: NotificationCategory;
-  time: string;
-  dueIn: string;
+  course: string;
   read: boolean;
-  dismissed: boolean;
-  icon: string;
-  course?: string;
+  created_at: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  private _notifications = signal<AppNotification[]>([
-    {
-      id: '1',
-      title: 'Linear Algebra Exam',
-      message: 'Your Linear Algebra midterm is in 2 days. You have covered 65% of the material.',
-      priority: 'critical',
-      category: 'exam',
-      time: '09:00',
-      dueIn: '2 days',
-      read: false,
-      dismissed: false,
-      icon: '📝',
-      course: 'MATH 201',
-    },
-    {
-      id: '2',
-      title: 'Research Paper Deadline',
-      message: 'Section 2 of your research paper is due tomorrow at 11:59 PM.',
-      priority: 'critical',
-      category: 'deadline',
-      time: '10:15',
-      dueIn: '1 day',
-      read: false,
-      dismissed: false,
-      icon: '📄',
-      course: 'ENG 305',
-    },
-    {
-      id: '3',
-      title: 'Physics Lab Report',
-      message: 'Start your physics lab report today — it typically takes 3–4 hours.',
-      priority: 'warning',
-      category: 'reminder',
-      time: '11:30',
-      dueIn: '3 days',
-      read: false,
-      dismissed: false,
-      icon: '⚗️',
-      course: 'PHY 101',
-    },
-    {
-      id: '4',
-      title: 'Study Break Recommended',
-      message: 'You have been in deep focus for 90 minutes. A 15-minute break will boost retention.',
-      priority: 'info',
-      category: 'tip',
-      time: '13:00',
-      dueIn: 'Now',
-      read: false,
-      dismissed: false,
-      icon: '🧘',
-    },
-    {
-      id: '5',
-      title: 'CS Assignment',
-      message: 'Your data structures assignment is due in 4 days. 40% complete.',
-      priority: 'warning',
-      category: 'deadline',
-      time: '14:00',
-      dueIn: '4 days',
-      read: true,
-      dismissed: false,
-      icon: '💻',
-      course: 'CS 202',
-    },
-    {
-      id: '6',
-      title: 'Weekly Review',
-      message: 'You completed 83% of tasks this week — your best streak yet!',
-      priority: 'info',
-      category: 'tip',
-      time: '18:00',
-      dueIn: 'Today',
-      read: true,
-      dismissed: false,
-      icon: '📈',
-    },
-    {
-      id: '7',
-      title: 'Chemistry Quiz',
-      message: 'Short quiz on organic compounds next Monday. 20 minutes of review recommended.',
-      priority: 'warning',
-      category: 'exam',
-      time: '08:00',
-      dueIn: '5 days',
-      read: false,
-      dismissed: false,
-      icon: '🧪',
-      course: 'CHEM 110',
-    },
-    {
-      id: '8',
-      title: 'Sleep Reminder',
-      message: 'Consistent sleep improves exam performance by up to 30%. Aim for 7–8 hours tonight.',
-      priority: 'info',
-      category: 'tip',
-      time: '22:00',
-      dueIn: 'Tonight',
-      read: true,
-      dismissed: false,
-      icon: '🌙',
-    },
-  ]);
+  private http = inject(HttpClient);
+  private api = 'http://localhost:8000/api/notifications/';
 
-  readonly notifications = computed(() =>
-    this._notifications().filter(n => !n.dismissed)
-  );
+  private _notifications = signal<AppNotification[]>([]);
+
+  readonly notifications = computed(() => this._notifications());
 
   readonly unreadCount = computed(() =>
-    this._notifications().filter(n => !n.read && !n.dismissed).length
+    this._notifications().filter(n => !n.read).length
   );
 
   readonly criticalCount = computed(() =>
-    this._notifications().filter(n => n.priority === 'critical' && !n.dismissed).length
+    this._notifications().filter(n => n.priority === 'critical').length
   );
 
-  markRead(id: string): void {
-    this._notifications.update(list =>
-      list.map(n => n.id === id ? { ...n, read: true } : n)
-    );
+  loadNotifications(): void {
+    this.http.get<AppNotification[]>(this.api).subscribe({
+      next: (data) => this._notifications.set(data),
+      error: () => this._notifications.set([]),
+    });
+  }
+
+  markRead(id: number): void {
+    this.http.patch(`${this.api}${id}/`, { read: true }).subscribe(() => {
+      this._notifications.update(list =>
+        list.map(n => n.id === id ? { ...n, read: true } : n)
+      );
+    });
   }
 
   markAllRead(): void {
-    this._notifications.update(list =>
-      list.map(n => ({ ...n, read: true }))
-    );
+    this.http.post(`${this.api}mark_all_read/`, {}).subscribe(() => {
+      this._notifications.update(list =>
+        list.map(n => ({ ...n, read: true }))
+      );
+    });
   }
 
-  dismiss(id: string): void {
-    this._notifications.update(list =>
-      list.map(n => n.id === id ? { ...n, dismissed: true } : n)
-    );
+  dismiss(id: number): void {
+    this.http.delete(`${this.api}${id}/`).subscribe(() => {
+      this._notifications.update(list =>
+        list.filter(n => n.id !== id)
+      );
+    });
   }
 
-  addNotification(notif: Omit<AppNotification, 'id' | 'read' | 'dismissed'>): void {
-    const newNotif: AppNotification = {
-      ...notif,
-      id: Date.now().toString(),
-      read: false,
-      dismissed: false,
-    };
-    this._notifications.update(list => [newNotif, ...list]);
+  addNotification(notif: Partial<AppNotification>): void {
+    this.http.post<AppNotification>(this.api, notif).subscribe(created => {
+      this._notifications.update(list => [created, ...list]);
+    });
   }
 }

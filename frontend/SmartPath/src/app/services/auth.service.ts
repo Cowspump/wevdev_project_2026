@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, throwError, tap, catchError, map } from 'rxjs';
+import { Observable, throwError, tap, catchError, switchMap } from 'rxjs';
 
 export interface LoginCredentials {
   email: string;
@@ -16,8 +16,14 @@ export interface AuthUser {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: AuthUser;
+  access: string;
+  refresh: string;
+}
+
+export interface RegisterData {
+  email: string;
+  username: string;
+  password: string;
 }
 
 export interface ApiError {
@@ -26,16 +32,16 @@ export interface ApiError {
   field?: string;
 }
 
-const TOKEN_KEY = 'smartpath_jwt';
-const USER_KEY  = 'smartpath_user';
+const TOKEN_KEY   = 'smartpath_jwt';
+const REFRESH_KEY = 'smartpath_refresh';
+const USER_KEY    = 'smartpath_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http   = inject(HttpClient);
   private router = inject(Router);
 
-  // Base URL — swap for your real backend
-  private readonly api = 'https://api.smartpath.app/v1';
+  private readonly api = 'http://localhost:8000/api';
 
   // ── Reactive state ─────────────────────────────────────────────────
   private _token    = signal<string | null>(localStorage.getItem(TOKEN_KEY));
@@ -49,18 +55,15 @@ export class AuthService {
   readonly error      = this._error.asReadonly();
   readonly isLoggedIn = computed(() => !!this._token());
 
-  // ── Login ───────────────────────────────────────────────────────────
-  login(credentials: LoginCredentials): Observable<AuthResponse> {
+  // ── Register ─────────────────────────────────────────────────────────
+  register(data: RegisterData): Observable<any> {
     this._loading.set(true);
     this._error.set(null);
 
     return this.http
-      .post<AuthResponse>(`${this.api}/auth/login`, credentials)
+      .post(`${this.api}/auth/register/`, data)
       .pipe(
-        tap(res => {
-          this.persistSession(res.token, res.user);
-          this._loading.set(false);
-        }),
+        tap(() => this._loading.set(false)),
         catchError((err: HttpErrorResponse) => {
           this._loading.set(false);
           const apiError = this.parseError(err);
@@ -68,6 +71,40 @@ export class AuthService {
           return throwError(() => apiError);
         })
       );
+  }
+
+  // ── Login ───────────────────────────────────────────────────────────
+  login(credentials: LoginCredentials): Observable<any> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    return this.http
+      .post<AuthResponse>(`${this.api}/auth/login/`, credentials)
+      .pipe(
+        tap(res => {
+          localStorage.setItem(TOKEN_KEY, res.access);
+          localStorage.setItem(REFRESH_KEY, res.refresh);
+          this._token.set(res.access);
+          this._loading.set(false);
+        }),
+        switchMap(() => this.fetchUser()),
+        catchError((err: HttpErrorResponse) => {
+          this._loading.set(false);
+          const apiError = this.parseError(err);
+          this._error.set(apiError);
+          return throwError(() => apiError);
+        })
+      );
+  }
+
+  // ── Get current user info ───────────────────────────────────────────
+  fetchUser(): Observable<AuthUser> {
+    return this.http.get<AuthUser>(`${this.api}/auth/me/`).pipe(
+      tap(user => {
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        this._user.set(user);
+      })
+    );
   }
 
   // ── Logout ──────────────────────────────────────────────────────────
@@ -83,12 +120,14 @@ export class AuthService {
 
   // ── Refresh token (call when interceptor gets 401) ──────────────────
   refreshToken(): Observable<AuthResponse> {
+    const refresh = localStorage.getItem(REFRESH_KEY);
     return this.http
-      .post<AuthResponse>(`${this.api}/auth/refresh`, {
-        token: this._token(),
-      })
+      .post<AuthResponse>(`${this.api}/auth/refresh/`, { refresh })
       .pipe(
-        tap(res => this.persistSession(res.token, res.user)),
+        tap(res => {
+          localStorage.setItem(TOKEN_KEY, res.access);
+          this._token.set(res.access);
+        }),
         catchError((err: HttpErrorResponse) => {
           this.clearSession();
           this.router.navigate(['/login']);
@@ -98,15 +137,9 @@ export class AuthService {
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────
-  private persistSession(token: string, user: AuthUser): void {
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-    this._token.set(token);
-    this._user.set(user);
-  }
-
   private clearSession(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
     this._token.set(null);
     this._user.set(null);
