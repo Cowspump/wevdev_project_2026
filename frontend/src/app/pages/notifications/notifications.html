@@ -1,0 +1,37 @@
+<div class="notif-page">
+  <div class="notif-header">
+    <h2 class="notif-title">Notifications</h2>
+    @if (notifications.length > 0) {
+      <button class="mark-all-btn" (click)="markAllRead()">Mark all as read</button>
+    }
+  </div>
+
+  @if (notifications.length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon">🔔</span>
+      <p class="empty-text">No notifications — all tasks are on track!</p>
+      <a routerLink="/week" class="go-week-btn">Go to Week view</a>
+    </div>
+  }
+
+  <ul class="notif-list">
+    @for (n of notifications; track n.id) {
+      <li class="notif-item" [class.unread]="!n.read" [class.today]="n.urgency === 'today'" [class.tomorrow]="n.urgency === 'tomorrow'">
+        <div class="notif-icon">
+          @if (n.urgency === 'today') { 🔴 } @else { 🟡 }
+        </div>
+        <div class="notif-body">
+          <p class="notif-message">{{ n.message }}</p>
+          <span class="notif-tag" [class.tag-today]="n.urgency === 'today'" [class.tag-tomorrow]="n.urgency === 'tomorrow'">
+            {{ n.urgency === 'today' ? 'Due today' : 'Due tomorrow' }}
+          </span>
+        </div>
+        @if (!n.read) {
+          <button class="read-btn" (click)="markRead(n.id)" title="Mark as read">✓</button>
+        } @else {
+          <span class="read-badge">Read</span>
+        }
+      </li>
+    }
+  </ul>
+</div>
