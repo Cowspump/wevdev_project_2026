@@ -6,7 +6,10 @@ class Task(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, default='')
-    due_date = models.DateTimeField(null=True, blank=True)
+    time = models.CharField(max_length=5, blank=True, default='')  # "14:30"
+    day_of_week = models.IntegerField(default=0)  # 0=Mon, 6=Sun
+    done = models.BooleanField(default=False)
+    due_date = models.DateField(null=True, blank=True)  # deadline
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

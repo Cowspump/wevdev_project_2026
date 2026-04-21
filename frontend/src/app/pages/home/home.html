@@ -1,4 +1,74 @@
 <section class="home-page">
   <p class="eyebrow">SmartPath</p>
-  <h1>Help students plan tasks, stay focused, and prioritize important work.</h1>
+  <h1>Your Week Overview</h1>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-number">{{ todoTasks.length }}</span>
+      <span class="stat-label">To Do</span>
+    </div>
+    <div class="stat-card stat-done">
+      <span class="stat-number">{{ doneTasks.length }}</span>
+      <span class="stat-label">Completed</span>
+    </div>
+    <div class="stat-card stat-total">
+      <span class="stat-number">{{ totalTasks }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+  </div>
+
+  @if (urgentTasks.length > 0) {
+    <div class="section">
+      <h2 class="section-title">Most Important</h2>
+      <ul class="task-list">
+        @for (entry of urgentTasks; track entry.task.id) {
+          <li class="task-row" [attr.data-deadline]="ts.deadlineColor(entry.task)">
+            <span class="task-dot"></span>
+            <span class="task-name">{{ entry.task.title }}</span>
+            <span class="task-day">{{ entry.day }}</span>
+            @if (ts.deadlineLabel(entry.task)) {
+              <span class="task-badge" [attr.data-deadline]="ts.deadlineColor(entry.task)">{{ ts.deadlineLabel(entry.task) }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="advice-box">
+    <p class="advice-label">AI Suggestion</p>
+    <p class="advice-text">{{ priorityAdvice }}</p>
+  </div>
+
+  @if (todoTasks.length > 0) {
+    <div class="section">
+      <h2 class="section-title">To Do</h2>
+      <ul class="task-list">
+        @for (entry of todoTasks; track entry.task.id) {
+          <li class="task-row">
+            <span class="task-dot"></span>
+            <span class="task-name">{{ entry.task.title }}</span>
+            <span class="task-day">{{ entry.day }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (doneTasks.length > 0) {
+    <div class="section">
+      <h2 class="section-title">Completed</h2>
+      <ul class="task-list">
+        @for (entry of doneTasks; track entry.task.id) {
+          <li class="task-row task-completed">
+            <span class="task-dot dot-done"></span>
+            <span class="task-name">{{ entry.task.title }}</span>
+            <span class="task-day">{{ entry.day }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <a routerLink="/week" class="go-week">Go to Week view</a>
 </section>

@@ -1,10 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 export interface Task {
+  id?: number;
   title: string;
   description: string;
   time: string;
-  deadline: string;
+  deadline: string;       // yyyy-MM-dd for frontend
+  day_of_week?: number;
+  done?: boolean;
 }
 
 export type DeadlineColor = 'green' | 'yellow' | 'red' | '';
@@ -14,11 +18,27 @@ export interface DayColumn {
   shortName: string;
   date: string;
   rawDate: Date;
+  dayIndex: number;       // 0=Mon, 6=Sun
   tasks: Task[];
+}
+
+interface ApiTask {
+  id: number;
+  title: string;
+  description: string;
+  time: string;
+  day_of_week: number;
+  done: boolean;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
+  private http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:8000/api/tasks';
+
   days: DayColumn[] = [];
 
   private readonly dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -41,10 +61,96 @@ export class TaskService {
         shortName: this.shortDayNames[i],
         date: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
         rawDate: new Date(d.getFullYear(), d.getMonth(), d.getDate()),
+        dayIndex: i,
         tasks: []
       };
     });
   }
+
+  // загрузить задачи с сервера и разложить по дням
+  loadTasks(): void {
+    this.http.get<ApiTask[]>(`${this.apiUrl}/`).subscribe({
+      next: (apiTasks) => {
+        // очистить все дни
+        for (const day of this.days) {
+          day.tasks = [];
+        }
+        // разложить задачи по day_of_week
+        for (const t of apiTasks) {
+          const dayCol = this.days[t.day_of_week];
+          if (dayCol) {
+            dayCol.tasks.push({
+              id: t.id,
+              title: t.title,
+              description: t.description,
+              time: t.time || '',
+              deadline: t.due_date || '',
+              day_of_week: t.day_of_week,
+              done: t.done
+            });
+          }
+        }
+        // сортировать по времени
+        for (let i = 0; i < this.days.length; i++) {
+          this.sortTasks(i);
+        }
+      },
+      error: (err) => console.error('Failed to load tasks', err)
+    });
+  }
+
+  // добавить задачу через API
+  addTask(dayIndex: number, task: Task): void {
+    const body = {
+      title: task.title,
+      description: task.description,
+      time: task.time,
+      day_of_week: dayIndex,
+      due_date: task.deadline || null
+    };
+
+    this.http.post<ApiTask>(`${this.apiUrl}/`, body).subscribe({
+      next: (created) => {
+        this.days[dayIndex].tasks.push({
+          id: created.id,
+          title: created.title,
+          description: created.description,
+          time: created.time || '',
+          deadline: created.due_date || '',
+          day_of_week: created.day_of_week
+        });
+        this.sortTasks(dayIndex);
+      },
+      error: (err) => console.error('Failed to create task', err)
+    });
+  }
+
+  // удалить задачу через API
+  removeTask(dayIndex: number, taskIndex: number): void {
+    const task = this.days[dayIndex].tasks[taskIndex];
+    if (!task?.id) return;
+
+    this.http.delete(`${this.apiUrl}/${task.id}/`).subscribe({
+      next: () => {
+        this.days[dayIndex].tasks.splice(taskIndex, 1);
+      },
+      error: (err) => console.error('Failed to delete task', err)
+    });
+  }
+
+  // отметить задачу как done / not done
+  toggleDone(dayIndex: number, taskIndex: number): void {
+    const task = this.days[dayIndex].tasks[taskIndex];
+    if (!task?.id) return;
+
+    const newDone = !task.done;
+    this.http.patch<ApiTask>(`${this.apiUrl}/${task.id}/`, { done: newDone }).subscribe({
+      next: () => { task.done = newDone; },
+      error: (err) => console.error('Failed to update task', err)
+    });
+  }
+
+  // --- утилиты (остаются на фронте) ---
 
   private timeToMinutes(time: string): number {
     if (!time) return 24 * 60;
@@ -106,10 +212,7 @@ export class TaskService {
       const d = this.daysUntilDeadline(entry.task);
       const deadlineScore = d !== null ? d : 999;
       const timeScore = this.timeToMinutes(entry.task.time);
-      return {
-        ...entry,
-        score: deadlineScore * 10000 + entry.dayIndex * 1000 + timeScore
-      };
+      return { ...entry, score: deadlineScore * 10000 + entry.dayIndex * 1000 + timeScore };
     }).sort((a, b) => a.score - b.score);
 
     const top = scored[0];
@@ -122,15 +225,12 @@ export class TaskService {
     else reason = `it's the earliest task (${top.day})`;
 
     let msg = `Start with "${top.task.title}" — ${reason}.`;
-
     if (scored.length > 1) {
-      const next = scored[1];
-      msg += ` Then "${next.task.title}" on ${next.day}.`;
+      msg += ` Then "${scored[1].task.title}" on ${scored[1].day}.`;
     }
     if (scored.length > 2) {
       msg += ` After that, ${scored.length - 2} more task(s) to go.`;
     }
-
     return msg;
   }
 
@@ -154,12 +254,8 @@ export class TaskService {
 
     const overdue = allTasks.filter(t => { const d = this.daysUntilDeadline(t.task); return d !== null && d < 0; });
     const dueToday = allTasks.filter(t => this.daysUntilDeadline(t.task) === 0);
-    if (overdue.length > 0) {
-      tips.push(`${overdue.length} task(s) are overdue! Handle them ASAP.`);
-    }
-    if (dueToday.length > 0) {
-      tips.push(`${dueToday.length} task(s) due today — make sure to finish them.`);
-    }
+    if (overdue.length > 0) tips.push(`${overdue.length} task(s) are overdue! Handle them ASAP.`);
+    if (dueToday.length > 0) tips.push(`${dueToday.length} task(s) due today — make sure to finish them.`);
 
     let maxCount = 0, minCount = Infinity;
     let busiestDay = '', lightestDay = '';
@@ -172,12 +268,9 @@ export class TaskService {
     }
 
     const noTime = allTasks.filter(t => !t.task.time);
-    if (noTime.length > 0) {
-      tips.push(`${noTime.length} task(s) have no time set — scheduling them helps stay on track.`);
-    }
+    if (noTime.length > 0) tips.push(`${noTime.length} task(s) have no time set — scheduling them helps stay on track.`);
 
     tips.push(`Total: ${allTasks.length} tasks this week. ${allTasks.length <= 10 ? 'Looking balanced!' : 'That\'s a lot — prioritize what matters most.'}`);
-
     return tips;
   }
 }

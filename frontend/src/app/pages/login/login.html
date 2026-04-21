@@ -7,13 +7,13 @@
     }
 
     <div class="form-group">
-      <label>Username</label>
+      <label>Email</label>
       <input
-        type="text"
+        type="email"
         [(ngModel)]="username"
-        name="username"
-        placeholder="admin"
-        autocomplete="username"
+        name="email"
+        placeholder="you@example.com"
+        autocomplete="email"
         [disabled]="isLoading"
       />
     </div>
@@ -34,5 +34,6 @@
       {{ isLoading ? 'Logging in...' : 'Login' }}
     </button>
 
+    <p class="signup-link">Don't have an account? <a routerLink="/register" class="link">Register</a></p>
   </form>
 </div>

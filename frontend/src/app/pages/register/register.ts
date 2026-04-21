@@ -4,35 +4,36 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-register',
   standalone: true,
   imports: [FormsModule, RouterLink],
-  templateUrl: './login.html',
-  styleUrl: './login.css'
+  templateUrl: './register.html',
+  styleUrl: './register.css'
 })
-export class LoginComponent {
+export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  email = '';
   username = '';
   password = '';
   errorMessage = '';
   isLoading = false;
 
-  login(): void {
-    if (!this.username.trim() || !this.password.trim()) {
-      this.errorMessage = 'Username and password are required';
+  register(): void {
+    if (!this.email.trim() || !this.username.trim() || !this.password.trim()) {
+      this.errorMessage = 'All fields are required';
       return;
     }
 
     this.isLoading = true;
-    this.authService.login(this.username, this.password).subscribe({
+    this.authService.register(this.email, this.username, this.password).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/home']);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.detail || 'Login failed';
+        this.errorMessage = err.error?.email?.[0] || err.error?.username?.[0] || 'Registration failed';
         this.isLoading = false;
       }
     });

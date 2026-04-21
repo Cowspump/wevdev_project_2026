@@ -9,9 +9,10 @@
 
         <div class="day-body">
           @for (task of day.tasks; track task.title; let j = $index) {
-            <div class="task-card" [attr.data-deadline]="ts.deadlineColor(task)">
+            <div class="task-card" [attr.data-deadline]="ts.deadlineColor(task)" [class.done]="task.done">
               <div class="task-card-header">
-                <span class="task-title">{{ task.title }}</span>
+                <input type="checkbox" [checked]="task.done" (change)="toggleDone(i, j)" class="task-check" />
+                <span class="task-title" [class.task-done]="task.done">{{ task.title }}</span>
                 <button class="task-remove" (click)="removeTask(i, j)">&times;</button>
               </div>
               @if (task.time) {

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AiAssistantComponent } from '../ai-assistant/ai-assistant';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -9,4 +10,10 @@ import { AiAssistantComponent } from '../ai-assistant/ai-assistant';
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  auth = inject(AuthService);
+
+  logout(): void {
+    this.auth.logout();
+  }
+}

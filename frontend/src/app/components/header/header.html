@@ -6,7 +6,12 @@
   <div class="header-actions">
     <a routerLink="/home" class="ghost-button">Home</a>
     <a routerLink="/week" class="ghost-button">Week</a>
-    <a routerLink="/login" class="ghost-button">Log in</a>
-    <app-ai-assistant />
+
+    @if (auth.isAuthenticated()) {
+      <app-ai-assistant />
+      <button class="ghost-button" (click)="logout()">Log out</button>
+    } @else {
+      <a routerLink="/login" class="ghost-button">Log in</a>
+    }
   </div>
 </header>

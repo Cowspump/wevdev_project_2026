@@ -89,20 +89,32 @@
 .task-card[data-deadline="green"] { border-left-color: #22c55e; }
 .task-card[data-deadline="yellow"] { border-left-color: #eab308; }
 .task-card[data-deadline="red"] { border-left-color: #ef4444; background: #fef2f2; }
+.task-card.done { opacity: 0.55; }
 
 .task-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 0.25rem;
+  gap: 0.3rem;
+}
+
+.task-check {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  cursor: pointer;
 }
 
 .task-title {
+  flex: 1;
   font-weight: 600;
   font-size: 0.8rem;
   color: #111827;
   line-height: 1.3;
   word-break: break-word;
+}
+
+.task-done {
+  text-decoration: line-through;
+  color: #94a3b8;
 }
 
 .task-remove {

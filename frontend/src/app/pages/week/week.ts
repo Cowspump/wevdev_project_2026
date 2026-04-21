@@ -1,7 +1,7 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TaskService, Task } from '../../services/task.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { TaskService, Task } from '../../services/task.service';
 
 @Component({
   selector: 'app-week-page',
@@ -10,22 +10,25 @@ import { ChangeDetectorRef } from '@angular/core';
   templateUrl: './week.html',
   styleUrl: './week.css'
 })
-export class WeekPageComponent {
+export class WeekPageComponent implements OnInit, OnDestroy {
   protected ts = inject(TaskService);
-  private cdr = inject(ChangeDetectorRef); //For timer to show how time changes.
+  private cdr = inject(ChangeDetectorRef);
 
   showModal = false;
   selectedDayIndex = -1;
   newTask: Task = { title: '', description: '', time: '', deadline: '' };
 
+  // pomodoro
   private timerId: ReturnType<typeof setInterval> | null = null;
   private readonly workDuration = 50 * 60;
   private readonly breakDuration = 10 * 60;
-
   timerMode: 'work' | 'break' = 'work';
   timerSecondsLeft = this.workDuration;
   timerRunning = false;
 
+  ngOnInit(): void {
+    this.ts.loadTasks();
+  }
 
   isToday(dayIndex: number): boolean {
     return dayIndex === this.ts.getTodayIndex();
@@ -44,17 +47,19 @@ export class WeekPageComponent {
 
   addTask(): void {
     if (!this.newTask.title.trim()) return;
-    this.ts.days[this.selectedDayIndex].tasks.push({ ...this.newTask });
-    this.ts.sortTasks(this.selectedDayIndex);
-
+    this.ts.addTask(this.selectedDayIndex, { ...this.newTask });
     this.closeModal();
   }
 
   removeTask(dayIndex: number, taskIndex: number): void {
-    this.ts.days[dayIndex].tasks.splice(taskIndex, 1);
-    this.ts.sortTasks(dayIndex);
+    this.ts.removeTask(dayIndex, taskIndex);
   }
 
+  toggleDone(dayIndex: number, taskIndex: number): void {
+    this.ts.toggleDone(dayIndex, taskIndex);
+  }
+
+  // pomodoro timer
   startTimer(): void {
     if (this.timerRunning) return;
     this.timerRunning = true;
@@ -80,17 +85,15 @@ export class WeekPageComponent {
       this.timerSecondsLeft--;
     } else {
       this.timerMode = this.timerMode === 'work' ? 'break' : 'work';
-      this.timerSecondsLeft =
-        this.timerMode === 'work' ? this.workDuration : this.breakDuration;
+      this.timerSecondsLeft = this.timerMode === 'work' ? this.workDuration : this.breakDuration;
     }
-
-    this.cdr.detectChanges(); // Forcing ui to update
+    this.cdr.detectChanges();
   }
 
   getTimerLabel(): string {
-    const minutes = Math.floor(this.timerSecondsLeft / 60);
-    const seconds = this.timerSecondsLeft % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const m = Math.floor(this.timerSecondsLeft / 60);
+    const s = this.timerSecondsLeft % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
   getTimerTitle(): string {
