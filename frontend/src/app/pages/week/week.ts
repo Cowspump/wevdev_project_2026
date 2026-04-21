@@ -42,11 +42,14 @@ export class WeekPageComponent {
   addTask(): void {
     if (!this.newTask.title.trim()) return;
     this.ts.days[this.selectedDayIndex].tasks.push({ ...this.newTask });
+    this.ts.sortTasks(this.selectedDayIndex);
+
     this.closeModal();
   }
 
   removeTask(dayIndex: number, taskIndex: number): void {
     this.ts.days[dayIndex].tasks.splice(taskIndex, 1);
+    this.ts.sortTasks(dayIndex);
   }
 
   startTimer(): void {
