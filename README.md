@@ -21,4 +21,4 @@ we focus on core features and avoid overcomplicated functionality.
 
 - Kozhamuratova Liana
 - Moldabayev Alikhan
-- Sultanbekul Yelnur7 days with hourly slots
+- Sultanbekul Yelnur 
