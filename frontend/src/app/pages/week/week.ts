@@ -1,6 +1,7 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TaskService, Task } from '../../services/task.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-week-page',
@@ -11,6 +12,7 @@ import { TaskService, Task } from '../../services/task.service';
 })
 export class WeekPageComponent {
   protected ts = inject(TaskService);
+  private cdr = inject(ChangeDetectorRef); //For timer to show how time changes.
 
   showModal = false;
   selectedDayIndex = -1;
@@ -23,6 +25,7 @@ export class WeekPageComponent {
   timerMode: 'work' | 'break' = 'work';
   timerSecondsLeft = this.workDuration;
   timerRunning = false;
+
 
   isToday(dayIndex: number): boolean {
     return dayIndex === this.ts.getTodayIndex();
@@ -75,11 +78,13 @@ export class WeekPageComponent {
   private tickTimer(): void {
     if (this.timerSecondsLeft > 0) {
       this.timerSecondsLeft--;
-      return;
+    } else {
+      this.timerMode = this.timerMode === 'work' ? 'break' : 'work';
+      this.timerSecondsLeft =
+        this.timerMode === 'work' ? this.workDuration : this.breakDuration;
     }
 
-    this.timerMode = this.timerMode === 'work' ? 'break' : 'work';
-    this.timerSecondsLeft = this.timerMode === 'work' ? this.workDuration : this.breakDuration;
+    this.cdr.detectChanges(); // Forcing ui to update
   }
 
   getTimerLabel(): string {
