@@ -4,7 +4,7 @@ export interface Task {
   title: string;
   description: string;
   time: string;
-  deadline: string;          // ISO date string yyyy-MM-dd or ''
+  deadline: string;
 }
 
 export type DeadlineColor = 'green' | 'yellow' | 'red' | '';
@@ -63,7 +63,6 @@ export class TaskService {
     return dow === 0 ? 6 : dow - 1;
   }
 
-  /** Days left until deadline. Negative = overdue. */
   daysUntilDeadline(task: Task): number | null {
     if (!task.deadline) return null;
     const now = new Date();
@@ -75,9 +74,9 @@ export class TaskService {
   deadlineColor(task: Task): DeadlineColor {
     const d = this.daysUntilDeadline(task);
     if (d === null) return '';
-    if (d <= 0) return 'red';       // overdue or today
-    if (d <= 2) return 'yellow';    // 1-2 days
-    return 'green';                 // 3+ days
+    if (d <= 0) return 'red';
+    if (d <= 2) return 'yellow';
+    return 'green';
   }
 
   deadlineLabel(task: Task): string {
@@ -99,19 +98,14 @@ export class TaskService {
     return all;
   }
 
-  /** Returns prioritized advice: what to do first, based on deadlines + day order. */
   getPriorityAdvice(): string {
     const all = this.getAllTasks();
     if (all.length === 0) return 'No tasks yet — add some to get advice!';
 
-    // Score: lower = more urgent. overdue < today < tomorrow < etc.
     const scored = all.map(entry => {
       const d = this.daysUntilDeadline(entry.task);
       const deadlineScore = d !== null ? d : 999;
-      // tie-break: earlier day in the week first
       const timeScore = this.timeToMinutes(entry.task.time);
-
-// combine all priorities
       return {
         ...entry,
         score: deadlineScore * 10000 + entry.dayIndex * 1000 + timeScore
@@ -158,7 +152,6 @@ export class TaskService {
       tips.push(`You have ${todayTasks.length} task(s) today — a manageable load, nice!`);
     }
 
-    // Overdue / urgent deadlines
     const overdue = allTasks.filter(t => { const d = this.daysUntilDeadline(t.task); return d !== null && d < 0; });
     const dueToday = allTasks.filter(t => this.daysUntilDeadline(t.task) === 0);
     if (overdue.length > 0) {
@@ -168,7 +161,6 @@ export class TaskService {
       tips.push(`${dueToday.length} task(s) due today — make sure to finish them.`);
     }
 
-    // Busiest / lightest
     let maxCount = 0, minCount = Infinity;
     let busiestDay = '', lightestDay = '';
     for (const day of this.days) {
@@ -179,7 +171,6 @@ export class TaskService {
       tips.push(`${busiestDay} is your busiest day (${maxCount} tasks). Try moving something to ${lightestDay}.`);
     }
 
-    // No time
     const noTime = allTasks.filter(t => !t.task.time);
     if (noTime.length > 0) {
       tips.push(`${noTime.length} task(s) have no time set — scheduling them helps stay on track.`);

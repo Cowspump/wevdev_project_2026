@@ -22,8 +22,6 @@
   background: #ffffff;
   border-color: #818cf8;
 }
-
-/* Popup */
 .ai-popup {
   position: absolute;
   top: calc(100% + 0.5rem);
@@ -67,8 +65,6 @@
 .tip-item:last-child {
   border-bottom: none;
 }
-
-/* Advice button */
 .popup-action {
   padding: 0.45rem 0.85rem;
 }
@@ -89,8 +85,6 @@
 .advice-btn:hover {
   background: #3730a3;
 }
-
-/* Priority advice box */
 .priority-box {
   margin: 0.45rem 0.85rem 0.65rem;
   padding: 0.55rem 0.65rem;
