@@ -28,6 +28,7 @@ export class LoginComponent {
     this.isLoading = true;
     this.authService.login(this.username, this.password).subscribe({
       next: () => {
+        this.isLoading = false;
         this.router.navigate(['/home']);
       },
       error: (err) => {
