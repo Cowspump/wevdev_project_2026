@@ -1,7 +1,12 @@
+import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 
 SECRET_KEY = 'django-insecure-smartpath-dev-key-change-later'
 

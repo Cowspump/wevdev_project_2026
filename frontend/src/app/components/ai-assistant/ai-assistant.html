@@ -16,7 +16,9 @@
       </ul>
 
       <div class="popup-action">
-        <button class="advice-btn" (click)="askAdvice()">What should I do first?</button>
+        <button class="advice-btn" (click)="askAdvice()" [disabled]="loading">
+          {{ loading ? 'Thinking...' : 'What should I do first?' }}
+        </button>
       </div>
 
       @if (priorityAdvice) {

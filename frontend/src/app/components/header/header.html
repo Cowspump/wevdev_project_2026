@@ -8,6 +8,7 @@
     <a routerLink="/week" class="ghost-button">Week</a>
 
     @if (auth.isAuthenticated()) {
+      <a routerLink="/notifications" class="ghost-button">Notifications</a>
       <app-ai-assistant />
       <button class="ghost-button" (click)="logout()">Log out</button>
     } @else {

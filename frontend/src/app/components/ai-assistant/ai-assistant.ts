@@ -1,4 +1,5 @@
 import { Component, inject, ElementRef, HostListener } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { TaskService } from '../../services/task.service';
 
 @Component({
@@ -9,11 +10,13 @@ import { TaskService } from '../../services/task.service';
 })
 export class AiAssistantComponent {
   private taskService = inject(TaskService);
+  private http = inject(HttpClient);
   private el = inject(ElementRef);
 
   open = false;
   tips: string[] = [];
   priorityAdvice = '';
+  loading = false;
 
   toggle(): void {
     this.open = !this.open;
@@ -24,7 +27,18 @@ export class AiAssistantComponent {
   }
 
   askAdvice(): void {
-    this.priorityAdvice = this.taskService.getPriorityAdvice();
+    this.loading = true;
+    this.priorityAdvice = '';
+    this.http.get<{ suggestion: string }>('http://localhost:8000/api/tasks/ai-suggest/').subscribe({
+      next: (res) => {
+        this.priorityAdvice = res.suggestion;
+        this.loading = false;
+      },
+      error: () => {
+        this.priorityAdvice = this.taskService.getPriorityAdvice();
+        this.loading = false;
+      }
+    });
   }
 
   @HostListener('document:click', ['$event'])
