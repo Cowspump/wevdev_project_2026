@@ -31,26 +31,10 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def ai_suggest(request):
-    tasks = Task.objects.filter(user=request.user, status__in=['todo', 'in_progress'])
+    tasks = Task.objects.filter(user=request.user)
 
     if not tasks.exists():
         return Response({'suggestion': 'You have no tasks. Create some to get started!'})
-
-    urgent = tasks.filter(urgency='urgent').order_by('due_date')
-    if urgent.exists():
-        task = urgent.first()
-        return Response({
-            'suggestion': f'Focus on "{task.title}" - it is marked as urgent!',
-            'task_id': task.id,
-        })
-
-    high = tasks.filter(priority='high').order_by('due_date')
-    if high.exists():
-        task = high.first()
-        return Response({
-            'suggestion': f'Work on "{task.title}" - it has high priority.',
-            'task_id': task.id,
-        })
 
     with_deadline = tasks.filter(due_date__isnull=False).order_by('due_date')
     if with_deadline.exists():
@@ -60,7 +44,7 @@ def ai_suggest(request):
             'task_id': task.id,
         })
 
-    task = tasks.first()
+    task = tasks.order_by('-created_at').first()
     return Response({
         'suggestion': f'You are doing great! Try working on "{task.title}".',
         'task_id': task.id,
