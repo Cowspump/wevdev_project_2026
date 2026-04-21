@@ -46,6 +46,18 @@ export class TaskService {
     });
   }
 
+  private timeToMinutes(time: string): number {
+    if (!time) return 24 * 60;
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  sortTasks(dayIndex: number): void {
+    this.days[dayIndex].tasks.sort((a, b) =>
+      this.timeToMinutes(a.time) - this.timeToMinutes(b.time)
+    );
+  }
+
   getTodayIndex(): number {
     const dow = new Date().getDay();
     return dow === 0 ? 6 : dow - 1;
@@ -97,7 +109,13 @@ export class TaskService {
       const d = this.daysUntilDeadline(entry.task);
       const deadlineScore = d !== null ? d : 999;
       // tie-break: earlier day in the week first
-      return { ...entry, score: deadlineScore * 10 + entry.dayIndex };
+      const timeScore = this.timeToMinutes(entry.task.time);
+
+// combine all priorities
+      return {
+        ...entry,
+        score: deadlineScore * 10000 + entry.dayIndex * 1000 + timeScore
+      };
     }).sort((a, b) => a.score - b.score);
 
     const top = scored[0];
